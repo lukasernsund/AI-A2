@@ -1,5 +1,63 @@
+create_inital_state_vec <- function(positions){
+  backpacker1Pos = positions[[1]]
+  backpacker2Pos = positions[[2]]
+  ourselvesPos = positions[[3]]
+  initStateVector <- numeric(40)
+  
+  if(backpacker1Pos < 0){
+    initStateVector[[backpacker1Pos]] <- 1
+  }
+  else if(backpacker2Pos < 0){
+    initStateVector[[backpacker2Pos]] <- 1
+  }
+  else{
+    initStateVector <- rep(1/38, 40)
+    initStateVector[[backpacker1Pos]] <- 0
+    initStateVector[[backpacker2Pos]] <- 0
+  }
+  return (initStateVector)
+}
+
+
 lukasWC=function(moveInfo,readings,positions,edges,probs) {
-  moveInfo$moves=c(sample(getOptions(positions[3],edges),1),0)
+  backpacker1Pos = positions[[1]]
+  backpacker2Pos = positions[[2]]
+  ourselvesPos = positions[[3]]
+  
+  #this is now done every move, should be investigated further.
+  moveInfo$mem$state <- create_inital_state_vec(positions)
+
+  # cat("Statevector:")
+  # print(moveInfo$mem$state)
+
+  #Next to do: create transition matrix
+  
+  
+  
+  
+  
+  
+  options=getOptions(positions[3],edges)
+  print("Move 1 options (plus 0 for search):")
+  print(options)
+  mv1=readline("Move 1: ")
+  if (mv1=="q") {stop()}
+  if (!mv1 %in% options && mv1 != 0) {
+    warning ("Invalid move. Search ('0') specified.")
+    mv1=0
+  }
+  if (mv1!=0) {
+    options=getOptions(mv1,edges)
+  }
+  print("Move 2 options (plus 0 for search):")
+  print(options)
+  mv2=readline("Move 2: ")
+  if (mv2=="q") {stop()}
+  if (!mv1 %in% options && mv1 != 0) {
+    warning ("Invalid move. Search ('0') specified.")
+    mv2=0
+  }
+  moveInfo$moves=c(mv1,mv2)  
   return(moveInfo)
 }
 
