@@ -1,3 +1,9 @@
+lukasWC=function(moveInfo,readings,positions,edges,probs) {
+  moveInfo$moves=c(sample(getOptions(positions[3],edges),1),0)
+  return(moveInfo)
+}
+
+#' 
 #' randomWC
 #'
 #' Control function for Where's Croc where moves are random.
