@@ -59,10 +59,28 @@ create_emission_matrix <- function(readings, probs){
   return (emissionMatrix)
 }
 
-create_state_prob_vector <- function(initState, transition, emission){
+create_state_prob_vector <- function(initState, transition, emission, positions){
+  backpacker1Pos = positions[[1]]
+  backpacker2Pos = positions[[2]]
+  ourselvesPos = positions[[3]]
   
   stateProbVector <- (initState %*% transition * t(emission))
+  
+  if(backpacker1Pos < 0){
+    stateProbVector = numeric(40)
+    stateProbVector[[-backpacker1Pos]] <- 1
+  }
+  else if(backpacker2Pos < 0){
+    stateProbVector = numeric(40)
+    stateProbVector[[-backpacker2Pos]] <- 1
+  }
+  else{
+    stateProbVector[[backpacker1Pos]] <- 0
+    stateProbVector[[backpacker2Pos]] <- 0
+  }
+  
   stateProbVector <- (stateProbVector/sum(stateProbVector))
+  
   
   return(stateProbVector)
 }
@@ -71,6 +89,44 @@ max_point <- function(stateProbVector){
   maxPoint <- which.max(stateProbVector)
   return (maxPoint)
 }
+
+#' bfsSearch
+#'
+#'
+bfSearch = function(node, goal, edges) {
+  visited = c(node)
+  queue = c(node)
+  parents = replicate(40, 0)
+  parents[node] = -1
+  
+  while (length(queue) != 0) {
+    currentNode = head(queue, n=1)
+    queue = setdiff(queue, c(currentNode))
+    neighbors = getOptions(currentNode, edges)
+    neighbors = setdiff(neighbors, c(currentNode))
+    neighbors = setdiff(neighbors, visited)
+    
+    for (node in neighbors) {
+      if (!(node %in% visited)) {
+        queue = c(queue, node)
+        parents[node] = currentNode
+        visited = c(visited, c(node))
+      }
+    }
+  }
+  
+  currentNode = goal
+  path = numeric()
+  while (currentNode != -1) {
+    if (parents[currentNode] != -1) {
+      path = c(c(currentNode), path)
+    }
+    currentNode = parents[currentNode]
+  }
+  
+  return (path)
+}
+
 
 
 
@@ -91,12 +147,20 @@ lukasWC=function(moveInfo,readings,positions,edges,probs) {
   emissionMatrix <- create_emission_matrix(readings, probs)
   
   #Not sure if calculations are correct
-  stateProbVector <- create_state_prob_vector(moveInfo$mem$state, moveInfo$mem$transition, emissionMatrix)
+  stateProbVector <- create_state_prob_vector(moveInfo$mem$state, moveInfo$mem$transition, emissionMatrix, positions)
   moveInfo$mem$state <- stateProbVector
   
   maxProbPoint <-max_point(stateProbVector)
+  
+  path = bfSearch(ourselvesPos,maxProbPoint,edges)
+  
+  cat("path")
+  print(path)
+  
   cat("maxprobpoint")
   print(maxProbPoint)
+  # cat("stateprob", "\n")
+  # print(stateProbVector)
   
   
   options=getOptions(positions[3],edges)
