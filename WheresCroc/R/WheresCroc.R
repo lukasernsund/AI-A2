@@ -2,6 +2,7 @@ create_inital_state_vec <- function(positions){
   backpacker1Pos = positions[[1]]
   backpacker2Pos = positions[[2]]
   ourselvesPos = positions[[3]]
+  
   initStateVector <- numeric(40)
   
   if(backpacker1Pos < 0){
@@ -18,14 +19,48 @@ create_inital_state_vec <- function(positions){
   return (initStateVector)
 }
 
+# 40x40
+# fylla ut hela
+# ettor om det går att flytta, nollor om det inte går 
+create_transition_matrix <-function(){
+  edges = getEdges() #matris 2xn
+  transitionMatrix <- diag(40)
+  num_cols <- ncol(transitionMatrix)
+  num_rows <- nrow(edges)
+  
+  for (i in 1:num_rows){
+    value1 <- edges[i,1]
+    value2 <- edges[i,2]
+    transitionMatrix[value1,value2] <- 1
+    transitionMatrix[value2,value1] <- 1
+  }
+  
+  for (i in 1:num_cols){
+    totalOnes <- sum(transitionMatrix[,i] == 1)
+    transitionMatrix[,i] <- transitionMatrix[,i]/totalOnes
+  }
+  
+  return (transitionMatrix)
+}
+
 
 lukasWC=function(moveInfo,readings,positions,edges,probs) {
   backpacker1Pos = positions[[1]]
   backpacker2Pos = positions[[2]]
   ourselvesPos = positions[[3]]
+  cat("moveinfo", "\n")
+  print(moveInfo$mem)
   
   #this is now done every move, should be investigated further.
   moveInfo$mem$state <- create_inital_state_vec(positions)
+  
+  if (moveInfo$mem$status == 0){
+    moveInfo$mem$transition <- create_transition_matrix()
+  }
+  else{
+    transitionMatrix <- moveInfo$mem$transition
+  }
+
 
   # cat("Statevector:")
   # print(moveInfo$mem$state)
