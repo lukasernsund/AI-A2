@@ -59,30 +59,44 @@ create_emission_matrix <- function(readings, probs){
   return (emissionMatrix)
 }
 
+create_state_prob_vector <- function(initState, transition, emission){
+  
+  stateProbVector <- (initState %*% transition * t(emission))
+  stateProbVector <- (stateProbVector/sum(stateProbVector))
+  
+  return(stateProbVector)
+}
+
+max_point <- function(stateProbVector){
+  maxPoint <- which.max(stateProbVector)
+  return (maxPoint)
+}
+
+
 
 lukasWC=function(moveInfo,readings,positions,edges,probs) {
   backpacker1Pos = positions[[1]]
   backpacker2Pos = positions[[2]]
   ourselvesPos = positions[[3]]
-  
-  #this is now done every move, should be investigated further.
-  moveInfo$mem$state <- create_inital_state_vec(positions)
+
+    #this is now done every move, should be investigated further.
+  if (is.null(moveInfo$mem$state)){
+    moveInfo$mem$state <- create_inital_state_vec(positions)
+  }
   
   if (moveInfo$mem$status == 0){
     moveInfo$mem$transition <- create_transition_matrix()
   }
-  else{
-    transitionMatrix <- moveInfo$mem$transition
-  }
   
   emissionMatrix <- create_emission_matrix(readings, probs)
-
-  cat("emissionmatrix:")
-  print(emissionMatrix)
   
+  #Not sure if calculations are correct
+  stateProbVector <- create_state_prob_vector(moveInfo$mem$state, moveInfo$mem$transition, emissionMatrix)
+  moveInfo$mem$state <- stateProbVector
   
-  
-  
+  maxProbPoint <-max_point(stateProbVector)
+  cat("maxprobpoint")
+  print(maxProbPoint)
   
   
   options=getOptions(positions[3],edges)
