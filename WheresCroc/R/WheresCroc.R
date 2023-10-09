@@ -43,13 +43,27 @@ create_transition_matrix <-function(){
   return (transitionMatrix)
 }
 
+create_emission_matrix <- function(readings, probs){
+  emissionMatrix = numeric(40)
+  length <- length(emissionMatrix)
+  
+  for (i in 1:length){
+    emissionMatrix[i] <- (dnorm(readings[1],probs$salinity[i,1],probs$salinity[i,2])
+                          * dnorm(readings[2],probs$phosphate[i,1],probs$phosphate[i,2])
+                          * dnorm(readings[3],probs$nitrogen[i,1],probs$nitrogen[i,2])
+    )
+  }
+  summa = sum(emissionMatrix)
+  print(summa)
+  
+  return (emissionMatrix)
+}
+
 
 lukasWC=function(moveInfo,readings,positions,edges,probs) {
   backpacker1Pos = positions[[1]]
   backpacker2Pos = positions[[2]]
   ourselvesPos = positions[[3]]
-  cat("moveinfo", "\n")
-  print(moveInfo$mem)
   
   #this is now done every move, should be investigated further.
   moveInfo$mem$state <- create_inital_state_vec(positions)
@@ -60,12 +74,11 @@ lukasWC=function(moveInfo,readings,positions,edges,probs) {
   else{
     transitionMatrix <- moveInfo$mem$transition
   }
+  
+  emissionMatrix <- create_emission_matrix(readings, probs)
 
-
-  # cat("Statevector:")
-  # print(moveInfo$mem$state)
-
-  #Next to do: create transition matrix
+  cat("emissionmatrix:")
+  print(emissionMatrix)
   
   
   
