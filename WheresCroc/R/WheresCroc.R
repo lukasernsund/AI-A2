@@ -1,7 +1,9 @@
 create_inital_state_vec <- function(positions){
-  backpacker1Pos = positions[[1]]
-  backpacker2Pos = positions[[2]]
-  ourselvesPos = positions[[3]]
+
+  backpacker1Pos = as.integer(positions[[1]])
+  backpacker2Pos = as.integer(positions[[2]])
+  ourselvesPos = as.integer(positions[[3]])
+  
   
   initStateVector <- numeric(40)
   
@@ -16,6 +18,7 @@ create_inital_state_vec <- function(positions){
     initStateVector[[backpacker1Pos]] <- 0
     initStateVector[[backpacker2Pos]] <- 0
   }
+  
   return (initStateVector)
 }
 
@@ -54,15 +57,14 @@ create_emission_matrix <- function(readings, probs){
     )
   }
   summa = sum(emissionMatrix)
-  print(summa)
   
   return (emissionMatrix)
 }
 
 create_state_prob_vector <- function(initState, transition, emission, positions){
-  backpacker1Pos = positions[[1]]
-  backpacker2Pos = positions[[2]]
-  ourselvesPos = positions[[3]]
+  backpacker1Pos = as.integer(positions[[1]])
+  backpacker2Pos = as.integer(positions[[2]])
+  ourselvesPos = as.integer(positions[[3]])
   
   stateProbVector <- (initState %*% transition * t(emission))
   
@@ -80,7 +82,6 @@ create_state_prob_vector <- function(initState, transition, emission, positions)
   }
   
   stateProbVector <- (stateProbVector/sum(stateProbVector))
-  
   
   return(stateProbVector)
 }
@@ -116,6 +117,7 @@ bfSearch = function(node, goal, edges) {
   }
   
   currentNode = goal
+  
   path = numeric()
   while (currentNode != -1) {
     if (parents[currentNode] != -1) {
@@ -129,11 +131,13 @@ bfSearch = function(node, goal, edges) {
 
 
 
-
 lukasWC=function(moveInfo,readings,positions,edges,probs) {
-  backpacker1Pos = positions[[1]]
-  backpacker2Pos = positions[[2]]
-  ourselvesPos = positions[[3]]
+
+  
+  backpacker1Pos = as.integer(positions[[1]])
+  backpacker2Pos = as.integer(positions[[2]])
+  ourselvesPos = as.integer(positions[[3]])
+
 
     #this is now done every move, should be investigated further.
   if (is.null(moveInfo$mem$state)){
@@ -156,7 +160,7 @@ lukasWC=function(moveInfo,readings,positions,edges,probs) {
   
   cat("path")
   print(path)
-  
+
   cat("maxprobpoint")
   print(maxProbPoint)
   # cat("stateprob", "\n")
