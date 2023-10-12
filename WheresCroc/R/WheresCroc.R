@@ -126,6 +126,10 @@ bfSearch = function(node, goal, edges) {
   currentNode = goal
   
   path = numeric()
+  
+  cat("currentnode")
+  print(currentNode)
+  
   while (currentNode != -1) {
     if (parents[currentNode] != -1) {
       path = c(c(currentNode), path)
@@ -136,7 +140,7 @@ bfSearch = function(node, goal, edges) {
   return (path)
 }
 
-defineMoves <- function(path,stateProbVector,positions,edges){
+defineMoves <- function(path,stateProbVector,positions,edges, isCase3){
   
   if (length(path) >= 2){
     mv1 = path[1]
@@ -150,22 +154,27 @@ defineMoves <- function(path,stateProbVector,positions,edges){
   
   #set prob = o to this hole and search for another hole
   else{
-    print("Här kommer vi in")
-    sorted_stateProbVector <- sort(stateProbVector, decreasing = TRUE)
-    second_max <- sorted_stateProbVector[2]
-    index <- which(stateProbVector == second_max)
+    if (any(stateProbVector %in% 1)){
+      mv1 = 0
+      mv2 = 0
+    }
+    else{
+      sorted_stateProbVector <- sort(stateProbVector, decreasing = TRUE)
+      second_max <- sorted_stateProbVector[2]
+      index <- which(stateProbVector == second_max)
     
-    new_path = bfSearch(as.integer(positions[[3]]),index,edges)
+      new_path = bfSearch(as.integer(positions[[3]]),index,edges)
     
-    mv1 = 0
-    mv2 = new_path[1]
+      mv1 = 0
+      mv2 = new_path[1]
+    }
   }
-  return(c(0,0))
+  return(c(mv1,mv2))
 }
 
 
-lukasWC=function(moveInfo,readings,positions,edges,probs) {
-  
+myFunction=function(moveInfo,readings,positions,edges,probs) {
+  cat("Spelet börjar")
   
   backpacker1Pos = as.integer(positions[[1]])
   backpacker2Pos = as.integer(positions[[2]])
