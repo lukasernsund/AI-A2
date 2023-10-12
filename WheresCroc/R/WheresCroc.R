@@ -1,5 +1,5 @@
 create_inital_state_vec <- function(positions){
-
+  
   backpacker1Pos = as.integer(positions[[1]])
   backpacker2Pos = as.integer(positions[[2]])
   ourselvesPos = as.integer(positions[[3]])
@@ -68,15 +68,22 @@ create_state_prob_vector <- function(initState, transition, emission, positions)
   
   stateProbVector <- (initState %*% transition * t(emission))
   
-  if(backpacker1Pos < 0){
-    stateProbVector = numeric(40)
-    stateProbVector[[-backpacker1Pos]] <- 1
+  if(!is.na(backpacker1Pos)) {
+    print (backpacker1Pos)
+    if(backpacker1Pos < 0){
+      stateProbVector = numeric(40)
+      stateProbVector[[-backpacker1Pos]] <- 1
+    }
   }
-  else if(backpacker2Pos < 0){
-    stateProbVector = numeric(40)
-    stateProbVector[[-backpacker2Pos]] <- 1
+  
+  else if (!is.na(backpacker2Pos)) {
+    print (backpacker2Pos)
+    if(backpacker2Pos < 0){
+      stateProbVector = numeric(40)
+      stateProbVector[[-backpacker2Pos]] <- 1
+    }
   }
-  else{
+  else if (!is.na(backpacker1Pos) && !is.na(backpacker2Pos)) {
     stateProbVector[[backpacker1Pos]] <- 0
     stateProbVector[[backpacker2Pos]] <- 0
   }
@@ -129,17 +136,43 @@ bfSearch = function(node, goal, edges) {
   return (path)
 }
 
+defineMoves <- function(path,stateProbVector,positions,edges){
+  
+  if (length(path) >= 2){
+    mv1 = path[1]
+    mv2 = path[2]
+  }
+  
+  else if (length(path) == 1){
+    mv1 = path[1]
+    mv2 = 0
+  }
+  
+  #set prob = o to this hole and search for another hole
+  else{
+    print("Här kommer vi in")
+    sorted_stateProbVector <- sort(stateProbVector, decreasing = TRUE)
+    second_max <- sorted_stateProbVector[2]
+    index <- which(stateProbVector == second_max)
+    
+    new_path = bfSearch(as.integer(positions[[3]]),index,edges)
+    
+    mv1 = 0
+    mv2 = new_path[1]
+  }
+  return(c(0,0))
+}
 
 
 lukasWC=function(moveInfo,readings,positions,edges,probs) {
-
+  
   
   backpacker1Pos = as.integer(positions[[1]])
   backpacker2Pos = as.integer(positions[[2]])
   ourselvesPos = as.integer(positions[[3]])
-
-
-    #this is now done every move, should be investigated further.
+  
+  
+  #this is now done every move, should be investigated further.
   if (is.null(moveInfo$mem$state)){
     moveInfo$mem$state <- create_inital_state_vec(positions)
   }
@@ -158,36 +191,43 @@ lukasWC=function(moveInfo,readings,positions,edges,probs) {
   
   path = bfSearch(ourselvesPos,maxProbPoint,edges)
   
+  moves = defineMoves(path,stateProbVector,positions,edges)
+  
+  cat("moves")
+  print(moves)
+  
   cat("path")
   print(path)
-
+  
   cat("maxprobpoint")
   print(maxProbPoint)
   # cat("stateprob", "\n")
   # print(stateProbVector)
   
   
-  options=getOptions(positions[3],edges)
-  print("Move 1 options (plus 0 for search):")
-  print(options)
-  mv1=readline("Move 1: ")
-  if (mv1=="q") {stop()}
-  if (!mv1 %in% options && mv1 != 0) {
-    warning ("Invalid move. Search ('0') specified.")
-    mv1=0
-  }
-  if (mv1!=0) {
-    options=getOptions(mv1,edges)
-  }
-  print("Move 2 options (plus 0 for search):")
-  print(options)
-  mv2=readline("Move 2: ")
-  if (mv2=="q") {stop()}
-  if (!mv1 %in% options && mv1 != 0) {
-    warning ("Invalid move. Search ('0') specified.")
-    mv2=0
-  }
-  moveInfo$moves=c(mv1,mv2)  
+  # options=getOptions(positions[3],edges)
+  # print("Move 1 options (plus 0 for search):")
+  # print(options)
+  # mv1=readline("Move 1: ")
+  # if (mv1=="q") {stop()}
+  # if (!mv1 %in% options && mv1 != 0) {
+  #   warning ("Invalid move. Search ('0') specified.")
+  #   mv1=0
+  # }
+  # if (mv1!=0) {
+  #   options=getOptions(mv1,edges)
+  # }
+  # print("Move 2 options (plus 0 for search):")
+  # print(options)
+  # mv2=readline("Move 2: ")
+  # if (mv2=="q") {stop()}
+  # if (!mv1 %in% options && mv1 != 0) {
+  #   warning ("Invalid move. Search ('0') specified.")
+  #   mv2=0
+  # }
+  # moveInfo$moves=c(mv1,mv2)  
+  moveInfo$moves = moves
+  
   return(moveInfo)
 }
 
@@ -391,12 +431,12 @@ runWheresCroc=function(makeMoves,doPlot=T,showCroc=F,pause=1,verbose=T,returnMem
     }
     else
       first=F
-
+    
     if (doPlot)
       plotGameboard(points,edges,move,positions,showCroc)
-
+    
     Sys.sleep(pause)
-
+    
     readings=getReadings(positions[1],probs)
     moveInfo=makeMoves(moveInfo,readings,positions[2:4],edges,probs)
     if (length(moveInfo$moves)!=2) {
@@ -542,7 +582,7 @@ getEdges=function() {
   edges=rbind(edges,c(37,39))
   edges=rbind(edges,c(37,40))
   edges=rbind(edges,c(38,39))
-
+  
   return (edges)
 }
 
