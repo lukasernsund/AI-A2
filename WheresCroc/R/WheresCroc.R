@@ -4,7 +4,6 @@ create_inital_state_vec <- function(positions){
   backpacker2Pos = as.integer(positions[[2]])
   ourselvesPos = as.integer(positions[[3]])
   
-  
   initStateVector <- numeric(40)
   
   if(backpacker1Pos < 0){
@@ -140,8 +139,7 @@ bfSearch = function(node, goal, edges) {
   return (path)
 }
 
-defineMoves <- function(path,stateProbVector,positions,edges, isCase3){
-  
+defineMoves <- function(path,stateProbVector,positions,edges){
   if (length(path) >= 2){
     mv1 = path[1]
     mv2 = path[2]
@@ -150,6 +148,7 @@ defineMoves <- function(path,stateProbVector,positions,edges, isCase3){
   else if (length(path) == 1){
     mv1 = path[1]
     mv2 = 0
+    stateProbVector[positions[3]] <- 0
   }
   
   #set prob = o to this hole and search for another hole
@@ -166,6 +165,7 @@ defineMoves <- function(path,stateProbVector,positions,edges, isCase3){
       new_path = bfSearch(as.integer(positions[[3]]),index,edges)
     
       mv1 = 0
+      stateProbVector[positions[3]] <- 0
       mv2 = new_path[1]
     }
   }
@@ -196,11 +196,11 @@ myFunction=function(moveInfo,readings,positions,edges,probs) {
   stateProbVector <- create_state_prob_vector(moveInfo$mem$state, moveInfo$mem$transition, emissionMatrix, positions)
   moveInfo$mem$state <- stateProbVector
   
-  maxProbPoint <-max_point(stateProbVector)
+  maxProbPoint <-max_point(moveInfo$mem$state)
   
   path = bfSearch(ourselvesPos,maxProbPoint,edges)
   
-  moves = defineMoves(path,stateProbVector,positions,edges)
+  moves = defineMoves(path,moveInfo$mem$state,positions,edges)
   
   cat("moves")
   print(moves)
@@ -210,6 +210,7 @@ myFunction=function(moveInfo,readings,positions,edges,probs) {
   
   cat("maxprobpoint")
   print(maxProbPoint)
+  
   # cat("stateprob", "\n")
   # print(stateProbVector)
   
