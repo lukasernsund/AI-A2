@@ -163,7 +163,6 @@ defineMoves <- function(path, stateProbVector, positions, edges) {
 
 
 myFunction <- function(moveInfo, readings, positions, edges, probs) {
-    cat("Spelet börjar", "\n")
     #create prevState if game is new
     if (moveInfo$mem$status == 0 || moveInfo$mem$status == 1){
         moveInfo$mem$prevState = create_inital_state_vec(positions[1], positions[2])
