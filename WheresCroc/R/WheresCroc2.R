@@ -1,31 +1,24 @@
-
-
 create_inital_state_vec = function(tourist1, tourist2) {
-  prev_f = replicate(40, 0)
+  prevState = numeric(40)
   counter = 0
-  # loop thorugh all nodes
+
   for (node in 1:40) {
-    # check if both tourists are alive 
     if (!is.na(tourist1) && !is.na(tourist2)) {
-      # if tourist is at waterhole and alive, probability = 0
       if (tourist1 == node || tourist2 == node) {
-        prev_f[node] = 0
+        prevState[node] = 0
       } else {
-        prev_f[node] = 1
+        prevState[node] = 1
         counter = counter + 1
       }
     }
   }
-  # probabilities equal at every possible node
-  prev_f = prev_f / counter
-  return (prev_f)
+  prevState = prevState / counter
+  return (prevState)
 }
 
-# 40x40
-# fylla ut hela
-# ettor om det går att flytta, nollor om det inte går
+
 create_transition_matrix <- function() {
-    edges <- getEdges() # matris 2xn
+    edges <- getEdges() 
     transitionMatrix <- diag(40)
     num_cols <- ncol(transitionMatrix)
     num_rows <- nrow(edges)
@@ -46,7 +39,7 @@ create_transition_matrix <- function() {
 }
 
 create_emission_matrix <- function(readings, probs) {
-    emissionMatrix <- numeric(40) # nolint: object_name_linter.
+    emissionMatrix <- numeric(40) 
     length <- length(emissionMatrix)
 
     for (i in 1:length) {
@@ -163,7 +156,6 @@ defineMoves <- function(path, stateProbVector, positions, edges) {
 
 
 myFunction <- function(moveInfo, readings, positions, edges, probs) {
-    cat("Spelet börjar", "\n")
     #create prevState if game is new
     if (moveInfo$mem$status == 0 || moveInfo$mem$status == 1){
         moveInfo$mem$prevState = create_inital_state_vec(positions[1], positions[2])
@@ -211,61 +203,6 @@ myFunction <- function(moveInfo, readings, positions, edges, probs) {
     moveInfo$mem$prevState = newState
     moveInfo$mem$status = 2
 
-    return(moveInfo)
-}
-
-#'
-#' randomWC
-#'
-#' Control function for Where's Croc where moves are random.
-#' @param moveInfo See runWheresCroc for details
-#' @param readings See runWheresCroc for details
-#' @param positions See runWheresCroc for details
-#' @param edges See runWheresCroc for details
-#' @param probs See runWheresCroc for details
-#' @return See runWheresCroc for details
-#' @export
-randomWC <- function(moveInfo, readings, positions, edges, probs) {
-    moveInfo$moves <- c(sample(getOptions(positions[3], edges), 1), 0)
-    return(moveInfo)
-}
-
-#' manualWC
-#'
-#' Control function for Where's Croc that allows manual play using keyboard.
-#' @param moveInfo See runWheresCroc for details
-#' @param readings See runWheresCroc for details
-#' @param positions See runWheresCroc for details
-#' @param edges See runWheresCroc for details
-#' @param probs See runWheresCroc for details
-#' @return See runWheresCroc for details
-#' @export
-manualWC <- function(moveInfo, readings, positions, edges, probs) {
-    options <- getOptions(positions[3], edges)
-    print("Move 1 options (plus 0 for search):")
-    print(options)
-    mv1 <- readline("Move 1: ")
-    if (mv1 == "q") {
-        stop()
-    }
-    if (!mv1 %in% options && mv1 != 0) {
-        warning("Invalid move. Search ('0') specified.")
-        mv1 <- 0
-    }
-    if (mv1 != 0) {
-        options <- getOptions(mv1, edges)
-    }
-    print("Move 2 options (plus 0 for search):")
-    print(options)
-    mv2 <- readline("Move 2: ")
-    if (mv2 == "q") {
-        stop()
-    }
-    if (!mv1 %in% options && mv1 != 0) {
-        warning("Invalid move. Search ('0') specified.")
-        mv2 <- 0
-    }
-    moveInfo$moves <- c(mv1, mv2)
     return(moveInfo)
 }
 
